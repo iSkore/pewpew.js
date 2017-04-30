@@ -63,7 +63,11 @@ class Board
 
 class Movement
 {
-    constructor() {
+    constructor( x, y )
+    {
+        this.x = x;
+        this.y = y;
+
         this.deltaTick = 10;
 
         this._left = false;
@@ -94,16 +98,12 @@ class Movement
         } );
     }
 
-    css( element, property )
-    {
-        return window.getComputedStyle( element, null ).getPropertyValue( property );
-    }
-
     moveX( x )
     {
-        let left = parseInt( this.css( this.object, 'left' ), 10 ),
-            dx   = left - x;
-        this.object.style.left = ( left - dx ).toFixed( 0 ) + 'px';
+        let xo  = parseInt( this.x, 10 ),
+            dx = xo + x;
+
+        this.x = ( xo - dx ).toFixed( 0 );
     }
 
     translateX( i )
@@ -117,13 +117,11 @@ class Movement
 
 class Player extends Movement
 {
-    constructor()
+    constructor( x, y )
     {
-        super();
+        super( x, y );
 
         this.name = 'Player';
-        this.x = 0;
-        this.y = 0;
         this.radius = 5;
         this.startAngle = 0;
         this.endAngle = Math.PI * 2;
@@ -131,6 +129,9 @@ class Player extends Movement
         this.color = 'rgba( 250, 0, 0, 0.4 )';
     }
 }
+
+
+
 
 const
     board  = new Board( document.getElementById( 'board' ) ),
