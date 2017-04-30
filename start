@@ -7,14 +7,14 @@ if ! [ -x "$(command -v http-server)" ]; then
     npm install http-server -g
 fi
 
-if ! [ -f ./.ssl/https.cert ]; then
+if ! [ -f ./.ssh/https.cert ]; then
     echo "https.key and https.cert do not exist"
-    mkdir .ssl/
-    cd .ssl/
+    mkdir .ssh/
+    cd .ssh/
     openssl req -nodes -new -x509 \
         -subj "/C=US/ST=localhost/L=localhost/O=localhost/CN=localhost" \
         -keyout https.key -out https.cert -days 365
     cd ..
 fi
 
-http-server -S -C ./.ssl/https.cert -K ./.ssl/https.key
+http-server -S -C ./.ssh/https.cert -K ./.ssh/https.key
