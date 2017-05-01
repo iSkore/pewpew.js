@@ -189,10 +189,19 @@ const
     boundX = ( x, left = true ) => ( x > 1 && left ) ? ( x - 1.5 ) : ( x < 97 && !left ) ? ( x + 1.5 ) : x,
     boundY = ( y, up = true ) => ( y > 1 && up ) ? ( y - 1.5 ) : ( y < 97 && !up ) ? ( y + 1.5 ) : y;
 
-// ctx.translate(70,70);
-// var can = document.getElementById('board');
-// can.height = 1000; can.width = 1300;
-// var ctx = can.getContext('2d');
-// var x = 10, y = 100;
-// ctx.fillStyle = "black";
-// ctx.fillRect(700, 100, 100, 100);
+if (window.PointerEvent) {
+    // Add Pointer Event Listener
+    swipeFrontElement.addEventListener('pointerdown', this.handleGestureStart, true);
+    swipeFrontElement.addEventListener('pointermove', this.handleGestureMove, true);
+    swipeFrontElement.addEventListener('pointerup', this.handleGestureEnd, true);
+    swipeFrontElement.addEventListener('pointercancel', this.handleGestureEnd, true);
+} else {
+    // Add Touch Listener
+    swipeFrontElement.addEventListener('touchstart', this.handleGestureStart, true);
+    swipeFrontElement.addEventListener('touchmove', this.handleGestureMove, true);
+    swipeFrontElement.addEventListener('touchend', this.handleGestureEnd, true);
+    swipeFrontElement.addEventListener('touchcancel', this.handleGestureEnd, true);
+
+    // Add Mouse Listener
+    swipeFrontElement.addEventListener('mousedown', this.handleGestureStart, true);
+}
