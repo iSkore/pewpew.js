@@ -2,25 +2,6 @@
 
 // TODO get offset of percentage to pixel per window width
 
-// var redraw = function() {  // this function redraws the c object every frame (FPS)
-//     ctx.clearRect( 0, 0, canvas.width, canvas.height ); // clear the canvas
-//     ctx.beginPath();  //start the path
-//     ctx.arc( c.x, c.y, c.r, 0, Math.PI * 2 ); //draw the circle
-//     ctx.closePath(); //close the circle path
-//     ctx.fillStyle = 'rgba(250,0,0,0.4)';
-//     ctx.fill(); //fill the circle
-//     requestAnimationFrame( redraw );//schedule this function to be run on the next frame
-// };
-
-// function move() {  // this function modifies the object
-//     var decimal = Math.random(); // this returns a float between 0.0 and 1.0
-//     c.x = decimal * canvas.width; // mulitple the random decimal by the canvas width and height to get a random pixel in the canvas;
-//     c.y = decimal * canvas.height;
-// }
-//
-// redraw(); //start the animation
-
-// setInterval( move, 1000 );
 
 class Board
 {
@@ -30,6 +11,14 @@ class Board
         this.ctx    = canvas.getContext( '2d' );
 
         this.objects = {};
+
+        this.init();
+    }
+
+    init()
+    {
+        this.canvas.width  = this.width  = Board.width;
+        this.canvas.height = this.height = Board.height;
     }
 
     addObject( obj )
@@ -37,85 +26,97 @@ class Board
         this.objects[ obj.name ] = obj;
     }
 
+    clear()
+    {
+        this.ctx.clearRect( 0, 0, this.canvas.width, this.canvas.height );
+    }
+
+    render()
+    {
+        Object.keys( this.objects ).map( c => {
+            c = this.objects[ c ];
+            this.ctx.beginPath();
+            this.ctx.moveTo( c.x, c.y );
+
+            if( c.isCircle ) {
+                this.ctx.arc( c.x, c.y, c.radius, c.startAngle, c.endAngle );
+            } else if( c.isTriangle ) {
+                this.ctx.lineTo( c.x + 15, c.y + 50 );
+                this.ctx.lineTo( c.x - 15, c.y + 50 );
+            }
+
+            this.ctx.closePath();
+            this.ctx.fillStyle = c.color;
+            this.ctx.fill();
+
+            this.move( c );
+        } );
+    }
+
+    move( obj )
+    {
+        if( obj.left )
+            obj.x -= obj.speed;
+        if( obj.right )
+            obj.x += obj.speed;
+        if( obj.up )
+            obj.y -= obj.speed;
+        if( obj.down )
+            obj.y += obj.speed;
+    }
+
     update()
     {
-        const
-            canvas  = this.canvas,
-            ctx     = this.ctx,
-            objects = this.objects;
-
-        const render = () => {
-            ctx.clearRect( 0, 0, canvas.width, canvas.height );
-
-            Object.keys( objects ).map( c => {
-                c = objects[ c ];
-                ctx.beginPath();
-                ctx.arc( c.x, c.y, c.radius, c.startAngle, c.endAngle );
-                ctx.closePath();
-                ctx.fillStyle = c.color;
-                ctx.fill();
-            } );
+        const update = () => {
+            this.clear();
+            this.render();
+            requestAnimationFrame( update );
         };
 
-        requestAnimationFrame( render );
+        update();
     }
 }
+
+Board.width  = window.innerWidth;
+Board.height = window.innerHeight;
+
 
 class Movement
 {
     constructor( x, y )
     {
-        this.x = x;
-        this.y = y;
+        this._x = x;
+        this._y = y;
 
-        this.deltaTick = 20;
-
-        this._left = false;
-        Object.defineProperty( this, 'left', {
-            configurable: false,
+        Object.defineProperty( this, 'x', {
             get: () => {
-                return this._left;
+                return this._x;
             },
-            set: l => {
-                if( l )
-                    this.translateX( -1 );
-                this._left = l;
+            set: x => {
+                this._x = this.clamp( x, 0, Board.width );
             }
         } );
 
-        this._right = false;
-        Object.defineProperty( this, 'right', {
+        const ymargin = Board.height / 25;
+
+        Object.defineProperty( this, 'y', {
             get: () => {
-                return this._right;
+                return this._y;
             },
-            set: r => {
-                if( r )
-                    this.translateX( 1 );
-                else
-                    this.translateX( 0 );
-                this._right = r;
+            set: y => {
+                this._y = this.clamp( y, ymargin, Board.height - ymargin );
             }
         } );
+
+        this.left  = false;
+        this.right = false;
+        this.up    = false;
+        this.down  = false;
     }
 
-    frame( x ) {
-        return new Promise( res => setTimeout( () => res( x ), this.deltaTick ) );
-    }
-
-    moveX( x )
+    clamp( num, min, max )
     {
-        let xo  = parseInt( this.x, 10 ),
-            dx = xo + x;
-
-        this.x = ( xo - dx ).toFixed( 0 );
-    }
-
-    translateX( i )
-    {
-        if( this.left || this.right ) {
-            this.moveX( i );
-            setTimeout( this.translateX( i ), this.deltaTick );
-        }
+        return num <= min ? min : num >= max ? max : num;
     }
 }
 
@@ -126,45 +127,58 @@ class Player extends Movement
         super( x, y );
 
         this.name = 'Player';
-        this.radius = 5;
-        this.startAngle = 0;
-        this.endAngle = Math.PI * 2;
-        this.anticlockwise = false;
+        this.speed = 5;
+
+        this.isCircle = false;
+        // this.radius = 5;
+        // this.startAngle = 0;
+        // this.endAngle = Math.PI * 2;
+        // this.anticlockwise = false;
+
+        this.isTriangle = true;
+
         this.color = 'rgba( 250, 0, 0, 0.4 )';
+
+        // ctx.beginPath();
+        // ctx.moveTo(x,y);
+        // ctx.lineTo(x+15,y+50);
+        // ctx.lineTo(x-15,y+50);
+        // ctx.fill();
     }
 }
-
-
 
 
 const
     board  = new Board( document.getElementById( 'board' ) ),
-    player = new Player();
+    player = new Player( Board.width / 2, Board.height - ( Board.height / 10 ) );
 
 board.update();
-
 board.addObject( player );
 
+console.log( board );
+
 function keydown( e ) {
-    if( e.key === 'a' ) {
+    if( e.key === 'a' )
         player.left = true;
-    } else if( e.key === 'd' ) {
+    else if( e.key === 'd' )
         player.right = true;
-    } else if( e.key === 'w' ) {
-    } else if( e.key === 's' ) {
-    } else if( e.key === ' ' ) {
-    }
+    else if( e.key === 'w' )
+        player.up = true;
+    else if( e.key === 's' )
+        player.down = true;
+    else if( e.key === ' ' ) {}
 }
 
 function keyup( e ) {
-    if( e.key === 'a' ) {
+    if( e.key === 'a' )
         player.left = false;
-    } else if( e.key === 'd' ) {
+    else if( e.key === 'd' )
         player.right = false;
-    } else if( e.key === 'w' ) {
-    } else if( e.key === 's' ) {
-    } else if( e.key === ' ' ) {
-    }
+    else if( e.key === 'w' )
+        player.up = false;
+    else if( e.key === 's' )
+        player.down = false;
+    else if( e.key === ' ' ) {}
 }
 
 document.addEventListener( 'keydown', keydown, false );
