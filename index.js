@@ -68,7 +68,7 @@ class Movement
         this.x = x;
         this.y = y;
 
-        this.deltaTick = 10;
+        this.deltaTick = 20;
 
         this._left = false;
         Object.defineProperty( this, 'left', {
@@ -96,6 +96,10 @@ class Movement
                 this._right = r;
             }
         } );
+    }
+
+    frame( x ) {
+        return new Promise( res => setTimeout( () => res( x ), this.deltaTick ) );
     }
 
     moveX( x )
