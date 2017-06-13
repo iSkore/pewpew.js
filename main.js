@@ -46,11 +46,9 @@ P.Render = () => {
 _.stage.addChild( P.graphic );
 
 
+
 _.ticker.add( delta => {
-//     // just for fun, let's rotate mr rabbit a little
-//     // delta is 1 if running at 100% performance
-//     // creates frame-independent tranformation
-    P.Transform.X += 0.1 * delta;
+    // P.Transform.X += 0.1 * delta;
     // P.Render();
 } );
 
