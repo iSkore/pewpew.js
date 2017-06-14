@@ -3,13 +3,12 @@
 const
     gulp        = require( 'gulp' ),
     gutil       = require( 'gulp-util' ),
-    babel       = require( 'gulp-babel' ),
     sass        = require( 'gulp-sass' ),
     connect     = require( 'gulp-connect' ),
     uglify      = require( 'gulp-uglify' ),
     concat      = require( 'gulp-concat' ),
     browserify  = require( 'gulp-browserify' ),
-    pump        = require( 'pump' ),
+    spawn       = require( 'child_process' ).spawn,
     jsSources   = [ './main/**/*.js' ],
     sassSources = [ './main/**/*.scss' ],
     htmlSources = [ './**/*.html' ],
@@ -39,24 +38,22 @@ gulp.task( 'sass', () => {
 
 
 
-gulp.task( 'js', cb => {
-    gulp.src( './main/**/*.js' )
-        .pipe( babel() )
-        .pipe( uglify() )
-        .pipe( browserify() )
-        .pipe( concat( 'js/bundle.js' ) )
-        .on( 'error', e => gutil.log( gutil.colors.red( '[Error]' ), e.toString() ) )
-        .pipe( gulp.dest( output ) )
-        .pipe( connect.reload() )
+gulp.task( 'js', () => {
+    const
+        browserify = spawn( 'npm', [ 'run', 'browserify' ] );
+
+    browserify.stdout.on( 'data', d => console.log( `stdout: ${d}` ) );
+    browserify.stderr.on( 'data', d => console.log( `stderr: ${d}` ) );
+    browserify.on( 'close', code => console.log( `stdclose: ${code}` ) );
 } );
 
 
 
-gulp.task( 'watch', () => {
-    gulp.watch( jsSources, [ 'js' ] );
-    gulp.watch( sassSources, [ 'sass' ] );
-    gulp.watch( htmlSources, [ 'html' ] );
-} );
+// gulp.task( 'watch', () => {
+//     gulp.watch( jsSources, [ 'js' ] );
+//     gulp.watch( sassSources, [ 'sass' ] );
+//     gulp.watch( htmlSources, [ 'html' ] );
+// } );
 
 
 
@@ -76,4 +73,4 @@ gulp.task( 'html', () => {
 
 
 
-gulp.task( 'default', [ 'html', 'js', 'sass', 'connect', 'watch' ] );
+gulp.task( 'default', [ 'html', 'js', 'sass', 'connect' ] );
