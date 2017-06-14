@@ -11,13 +11,19 @@ ASCII CODES:
 const
     PIXI           = require( 'pixi.js' ),
     KeyboardAction = require( './KeyboardAction' ),
+    view           = document.getElementById( 'board' ),
     _ =  window._  = new PIXI.Application( {
         backgroundColor: 0x222222,
         antialias: false,
         transparent: false,
         resolution: 1,
-        view: document.getElementById( 'board' )
-    } );
+        view
+    } ),
+    SCREEN = window.SCREEN = {
+        WIDTH: view.offsetWidth,
+        HEIGHT: view.offsetHeight
+    };
+
 
 _.autoResize = true;
 _.stage.interactive = true;
@@ -37,11 +43,12 @@ const
 
 P.WIDTH_OFFSET = P.WIDTH / 4;
 
-// window.P = P;
 
 P.Movement = {
     _isMoving: false,
     get isMoving() {
+        if( P.Movement.UP || P.Movement.DOWN || P.Movement.RIGHT || P.Movement.LEFT )
+            P.Movement._isMoving = true;
         return P.Movement._isMoving;
     },
     set isMoving( v ) {
@@ -57,8 +64,8 @@ P.Movement = {
 };
 
 P.Transform = {
-    X: ( _.screen.width * 0.5 ) - ( P.WIDTH * 0.5 ),
-    Y: ( _.screen.height * 0.95 ) - P.HEIGHT
+    X: ( SCREEN.WIDTH * 0.5 ) - ( P.WIDTH * 0.5 ),
+    Y: ( SCREEN.HEIGHT * 0.6 ) - P.HEIGHT
 };
 
 P.Render = () => {
@@ -96,14 +103,7 @@ Input.A.press   = () => P.Movement.LEFT  = true;
 Input.A.release = () => P.Movement.LEFT  = false;
 
 _.ticker.add( delta => {
-    // lets deactivate UP & DOWN for now
-    // if( P.Movement.UP )
-    //     P.Transform.Y -= P.Movement.Speed * delta;
-    //
-    //if( P.Movement.DOWN )
-    //    P.Transform.Y += P.Movement.Speed * delta;
-
-    if( P.Movement.RIGHT && P.Transform.X < _.view.offsetWidth - P.WIDTH_OFFSET )
+    if( P.Movement.RIGHT && P.Transform.X < SCREEN.WIDTH - P.WIDTH_OFFSET )
         P.Transform.X += P.Movement.Speed * delta;
 
     if( P.Movement.LEFT && P.Transform.X > P.WIDTH_OFFSET )
@@ -113,8 +113,8 @@ _.ticker.add( delta => {
     if( P.Transform.X < P.WIDTH_OFFSET )
         P.Transform.X = P.WIDTH_OFFSET;
 
-    if( P.Transform.X > _.view.offsetWidth )
-        P.Transform.X = _.view.offsetWidth - P.WIDTH_OFFSET;
+    if( P.Transform.X > SCREEN.WIDTH )
+        P.Transform.X = SCREEN.WIDTH - P.WIDTH_OFFSET;
 
     P.Render();
 } );
