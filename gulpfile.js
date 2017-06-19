@@ -5,10 +5,12 @@ const
     gutil       = require( 'gulp-util' ),
     sass        = require( 'gulp-sass' ),
     connect     = require( 'gulp-connect' ),
-    uglify      = require( 'gulp-uglify' ),
     concat      = require( 'gulp-concat' ),
     browserify  = require( 'gulp-browserify' ),
-    spawn       = require( 'child_process' ).spawn,
+    uglifyjs    = require( 'uglify-js' ),
+    composer    = require( 'gulp-uglify/composer' ),
+    pump        = require( 'pump' ),
+    minify      = composer( uglifyjs, console ),
     jsSources   = [ './main/**/*.js' ],
     sassSources = [ './main/**/*.scss' ],
     htmlSources = [ './**/*.html' ],
@@ -39,21 +41,21 @@ gulp.task( 'sass', () => {
 
 
 gulp.task( 'js', () => {
-    const
-        browserify = spawn( 'npm', [ 'run', 'browserify' ] );
-
-    browserify.stdout.on( 'data', d => console.log( `stdout: ${d}` ) );
-    browserify.stderr.on( 'data', d => console.log( `stderr: ${d}` ) );
-    browserify.on( 'close', code => console.log( `stdclose: ${code}` ) );
+    gulp.src( './main/js/index.js' )
+        .pipe( browserify( {
+            insertGlobals: true
+        } ) )
+        .pipe( concat( 'bundle.js' ) )
+        .pipe( gulp.dest( 'dist/js/' ) );
 } );
 
 
 
-// gulp.task( 'watch', () => {
-//     gulp.watch( jsSources, [ 'js' ] );
-//     gulp.watch( sassSources, [ 'sass' ] );
-//     gulp.watch( htmlSources, [ 'html' ] );
-// } );
+gulp.task( 'watch', () => {
+    gulp.watch( jsSources, [ 'js' ] );
+    gulp.watch( sassSources, [ 'sass' ] );
+    gulp.watch( htmlSources, [ 'html' ] );
+} );
 
 
 

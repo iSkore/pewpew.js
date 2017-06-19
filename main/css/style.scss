@@ -1,5 +1,6 @@
 body {
     margin: 0;
+    padding: 0;
 }
 
 .board {
@@ -7,13 +8,4 @@ body {
     position: absolute;
     width: 100%;
     height: 100%;
-}
-
-#player {
-    background-color: white;
-    position: absolute;
-    width: 64px;
-    height: 64px;
-    left: 50%;
-    bottom: 10%;
 }
