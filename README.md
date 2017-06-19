@@ -2,6 +2,9 @@
 
 Space ship shooter in HTML, CSS, and JS
 
+[![Travis](https://img.shields.io/travis/rust-lang/rust.svg)]()
+![npm@v5.0.3](https://img.shields.io/npm/v/npm.svg)
+
 ### Startup & initialization
 
 Must have:
