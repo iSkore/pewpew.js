@@ -18,7 +18,7 @@ Array.prototype.remove = function( from, to ) {
 };
 
 /**
- * CREATE THE RENDER AREA
+ * CREATE THE RENDER AREA and globals
  */
 const
     PIXI           = require( 'pixi.js' ),
@@ -36,14 +36,34 @@ const
         width: SCREEN.WIDTH,
         height: SCREEN.HEIGHT,
         view
-    } );
+    } ),
+    STYLE          = new PIXI.TextStyle( {
+        fontFamily: 'Arial',
+        fontSize: 32,
+        fill: 'white'
+    } ),
+    scoreText      = new PIXI.Text( '0', STYLE );
 
 _.autoResize = true;
 _.stage.interactive = true;
 
 document.body.appendChild( _.view );
 
+scoreText.x = 10;
+scoreText.y = 10;
+_.stage.addChild( scoreText );
 
+let
+    score  = window.score  = {
+        _score: 0,
+        get points() {
+            return score._score || 0;
+        },
+        set points( v ) {
+            scoreText.text = ''+v;
+            score._score = v;
+        }
+    };
 
 /**
  * CREATE THE PLAYER
@@ -82,7 +102,8 @@ const
         WIDTH: 16,
         HEIGHT: 24
     },
-    SHOTS = [];
+    SHOTS   = [],
+    ENEMIES = [];
 
 P.WIDTH_OFFSET = P.WIDTH / 4;
 
@@ -129,18 +150,32 @@ P.Render();
 
 
 /**
+ * Enemy rendering
+ * We are going to have the shots track the enemies because that is
+ * few to many as
+ */
+const enemy = window.enemy = new PIXI.Graphics();
+enemy.beginFill( P.fillColor, P.fillOpacity );
+enemy.lineStyle( 1, 0xFF00FF, 1 );
+enemy.drawEllipse( 100, 100, 20, 40 )
+enemy.endFill();
+_.stage.addChild( enemy );
+
+ENEMIES.push( enemy );
+
+/**
  * PROJECTILE AREA
  */
-const shot = new PIXI.Graphics();
-shot.beginFill( P.fillColor, P.fillOpacity );
-shot.lineStyle( 1, 0xFF00FF, 1 );
-shot.drawEllipse( 0, 0, 2, 4 )
-shot.endFill();
-shot.speed = 10;
+const _shot = new PIXI.Graphics();
+_shot.beginFill( P.fillColor, P.fillOpacity );
+_shot.lineStyle( 1, 0xFF00FF, 1 );
+_shot.drawEllipse( 0, 0, 2, 4 )
+_shot.endFill();
+_shot.speed = 10;
 
 function shoot() {
     P.CanShoot = false;
-    const a = shot.clone();
+    const a = _shot.clone();
     a.x = P.Transform.X + ( P.WIDTH / 2 );
     a.y = P.Transform.Y - P.HEIGHT;
     SHOTS.push( a );
@@ -154,7 +189,7 @@ function deleteShot( i ) {
 
 _.ticker.add( delta => {
     for( let i = 0; i < SHOTS.length; ++i ) {
-        SHOTS[ i ].y -= shot.speed * delta;
+        SHOTS[ i ].y -= _shot.speed * delta;
 
         if( SHOTS[ i ].y < 0 ) {
             deleteShot( i );
@@ -194,18 +229,13 @@ Input.SPACE.release = () => _SPACE = false;
 _.ticker.add( delta => {
     P.Shooting = _SPACE;
 
-    if( P.Movement.RIGHT && P.Transform.X < SCREEN.WIDTH - P.WIDTH - P.WIDTH_OFFSET )
+    if( P.Movement.RIGHT && P.Transform.X < SCREEN.WIDTH - P.WIDTH - P.WIDTH_OFFSET ) {
         P.Transform.X += P.Movement.Speed * delta;
+    }
 
-    if( P.Movement.LEFT && P.Transform.X > P.WIDTH_OFFSET )
+    if( P.Movement.LEFT && P.Transform.X > P.WIDTH_OFFSET ) {
         P.Transform.X -= P.Movement.Speed * delta;
-
-    // Sanity check
-    if( P.Transform.X < P.WIDTH_OFFSET )
-        P.Transform.X = P.WIDTH_OFFSET;
-
-    if( P.Transform.X > SCREEN.WIDTH )
-        P.Transform.X = SCREEN.WIDTH - P.WIDTH_OFFSET;
+    }
 
     P.Render();
 } );
