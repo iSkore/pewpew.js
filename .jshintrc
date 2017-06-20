@@ -28,5 +28,6 @@
     "nonew": true,
     "forin": false,
     "shadow": true,
-    "-W018": false
+    "-W018": false,
+    "esversion": 6
 }
