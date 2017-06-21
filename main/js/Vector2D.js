@@ -1,55 +1,20 @@
 'use strict';
 
-class HIGH_Math
-{
-    constructor() {}
+const
+    MMath = require( './MMath' );
 
-    root( n )
-    {
-        return Math.sqrt( n );
-    }
-}
+const util = require( 'util' );
 
-class MID_Math
-{
-    constructor() {}
-
-    root( n )
-    {
-        let a = 0, o = n;
-        while( a <= o )
-        {
-             const mid = ( ( a + o ) / 2 );
-             if( mid * mid > n )
-                o = mid - 1;
-             else
-                a = mid + 1;
-        }
-
-        return o;
-    }
-}
-
-class LOW_Math
-{
-    constructor() {}
-
-    root( n )
-    {
-        return n & ( n - 1 );
-    }
-}
-
-class Vector2D
+class Vector2D extends MMath
 {
     constructor( ...args )
     {
+        const precision = args[ 0 ].precision || args[ 2 ] || Vector2D.HIGH_PRECISION;
+        super( precision );
+        this.precision = precision;
+
         if( args.length === 1 && !Array.isArray( args[ 0 ] ) )
-            this.init(
-                args[ 0 ].x || args[ 0 ].X,
-                args[ 0 ].y, args[ 0 ].Y,
-                args[ 0 ].precision || Vector2D.HIGH_PRECISION
-            );
+            this.init( args[ 0 ].x || args[ 0 ].X, args[ 0 ].y || args[ 0 ].Y );
         else if( Array.isArray( args ) )
             this.init( args[ 0 ], args[ 1 ] );
         else
@@ -62,28 +27,68 @@ class Vector2D
         this.y = y = +y;
     }
 
-    distance( point )
+    distance( p )
     {
-        if( !( point instanceof Vector2D ) )
-            error( 'Argument Error - Vector2D.distance must pass an instanceof Vector2D' );
+        if( !( p instanceof Vector2D ) )
+            this.error( 'Argument Error - Vector2D.distance must pass an instanceof Vector2D' );
 
-
+        return this.MDistance( this.x, p.x, this.y, p.y );
     }
 
     error( arg )
     {
         throw `[Vector2D] ${args}`;
     }
+
+    getX()
+    {
+        return this.x;
+    }
+
+    setX( x )
+    {
+        this.x = x;
+    }
+
+    getY()
+    {
+        return this.y;
+    }
+
+    setY( y )
+    {
+        this.y = y;
+    }
+
+    __noSuchMethod__( ) {
+        console.log( 'ok' );
+    }
 }
 
-Vector2D.HIGH_PRECISION = 2;
-Vector2D.MID_PRECISION  = 1;
-Vector2D.LOW_PRECISION  = 0;
+var handler = {
+    get: function(target, name) {
+        return name in target ?
+            target[name] :
+            37;
+    }
+};
+
+
+Vector2D.constructor.apply( () => {
+    new Proxy( Vector2D, console.log );
+} );
+
+Vector2D.HIGH_PRECISION = MMath.HIGH_PRECISION;
+Vector2D.MID_PRECISION  = MMath.MID_PRECISION;
+Vector2D.LOW_PRECISION  = MMath.LOW_PRECISION;
 
 const
-    point1 = new Vector2D( 10, 10 ),
-    point2 = new Vector2D( 20, 20 );
+    p1 = new Vector2D( 10, 10, Vector2D.HIGH_PRECISION ),
+    p2 = new Vector2D( 20, 20 );
 
-console.log( point1.distance( point2 ) );
-console.log( point1.root( 12 ) );
-console.log( new LOW_Math().root( 12 ) );
+// Hmm...
+// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Proxy
+
+console.log( p1 + p1 );
+//
+// console.log( util.inspect( p1 , { depth: null, showHidden: true } ) );

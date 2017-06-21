@@ -21,3 +21,28 @@ gulp
 ```
 
 Server will start on http://localhost:8080/
+
+### Classes
+
+**`MMath`**
+
+`MMath` is a class created to make calculations with different precision levels.
+
+JavaScript's native `Math.sqrt` is the most precise way to calculate the square root of a number, but, due to the nature of the calculation, is rather slow.
+
+Two additional algorithms are implemented to allow for faster, less precise calculations.
+
+- `HIGH_PRECISION: h_root`
+    - returns Native JavaScript `Math.sqrt`
+    - Margin of error: `~0.00% ± 0`
+    - Execution: `0.086ms`
+
+- `MID_PRECISION: m_root`
+    - Margin of error: `~0.538% ± 0.1`
+    - Execution: `0.053ms`
+    - `38.37%` faster
+
+- `LOW_PRECISION: l_root`
+    - Margin of error: `~1.65% ± 3`
+    - Execution: `0.022ms`
+    - `74.42%` faster
