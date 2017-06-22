@@ -18,6 +18,9 @@ const
         WIDTH: view.offsetWidth,
         HEIGHT: view.offsetHeight
     },
+    STATE          = {
+        RUNNING: true
+    },
     _              = new PIXI.Application( {
         backgroundColor: 0x222222,
         antialias: false,
@@ -48,6 +51,7 @@ window.PIXI           = PIXI;
 window.KeyboardAction = KeyboardAction;
 window.view           = view;
 window.SCREEN         = SCREEN;
+window.STATE          = STATE;
 window._              = _;
 
 const
