@@ -217,16 +217,19 @@ if( !isMobile ) {
         };
 
     function t_move( direction ) {
-        if( direction === TOUCH.LEFT )
+        if( direction === TOUCH.LEFT ) {
             P.Movement.LEFT  = _SPACE = true;
-        else if( direction === TOUCH.RIGHT )
+            P.Movement.RIGHT = false;
+        } else if( direction === TOUCH.RIGHT ) {
             P.Movement.RIGHT = _SPACE = true;
-        else if( direction === TOUCH.EXIT_LEFT )
-            P.Movement.LEFT  = _SPACE = false;
-        else if( direction === TOUCH.EXIT_RIGHT )
-            P.Movement.RIGHT = _SPACE = false;
-        else
-            P.Movement.RIGHT = P.Movement.LEFT = _SPACE = false;
+            P.Movement.LEFT  = false;
+        } else if( direction === TOUCH.EXIT_LEFT ) {
+            P.Movement.LEFT  = P.Movement.RIGHT = _SPACE = false;
+        } else if( direction === TOUCH.EXIT_RIGHT ) {
+            P.Movement.RIGHT = P.Movement.LEFT  = _SPACE = false;
+        } else {
+            P.Movement.RIGHT = P.Movement.LEFT  = _SPACE = false;
+        }
     }
 
     leftMovement.beginFill( 0x000000, 0 );
@@ -265,7 +268,9 @@ if( !isMobile ) {
     rightMovement
         .on( 'touchstart', () => t_move( TOUCH.RIGHT ) )
         .on( 'touchend', () => t_move( TOUCH.EXIT_RIGHT ) )
-        .on( 'touchendoutsite', () => t_move( TOUCH.EXIT_RIGHT ) );
+        .on( 'touchendoutsite', () => t_move( TOUCH.EXIT_RIGHT ) )
+        .on( 'touchleave', () => t_move( TOUCH.EXIT_RIGHT ) )
+        .on( 'touchcancel', () => t_move( TOUCH.EXIT_RIGHT ) );
 
     _.stage.addChild( leftMovement );
     _.stage.addChild( rightMovement );
