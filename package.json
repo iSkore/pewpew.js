@@ -13,7 +13,7 @@
         }
     ],
     "description": "Space ship shooter in HTML, CSS, and JS",
-    "version": "0.0.4",
+    "version": "0.0.5",
     "main": "app/js/index.js",
     "repository": {
         "type": "git",
