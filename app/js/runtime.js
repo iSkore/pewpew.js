@@ -1,12 +1,12 @@
 'use strict';
 
 /*
-HELP:
-    https://github.com/kittykatattack/learningPixi
+ HELP:
+ https://github.com/kittykatattack/learningPixi
 
-ASCII CODES:
-    http://help.adobe.com/en_US/AS2LCR/Flash_10.0/help.html?content=00000520.html
-*/
+ ASCII CODES:
+ http://help.adobe.com/en_US/AS2LCR/Flash_10.0/help.html?content=00000520.html
+ */
 
 // Ladies and gents,
 // I know you're NEVER suppose to do this
@@ -22,7 +22,7 @@ Array.prototype.remove = function( from, to ) {
  */
 const
     PIXI           = require( 'pixi.js' ),
-    KeyboardAction = require( './KeyboardAction' ),
+    KeyboardAction = require( './client/KeyboardAction' ),
     view           = document.getElementById( 'board' ),
     SCREEN = window.SCREEN = {
         WIDTH: view.offsetWidth,
