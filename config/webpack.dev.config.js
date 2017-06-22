@@ -1,3 +1,7 @@
+/**
+ * Created by mattputipong on 6/20/17.
+ */
+
 'use strict';
 
 import webpack from 'webpack';

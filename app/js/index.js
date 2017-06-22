@@ -1,8 +1,8 @@
 'use strict';
 
 require( 'babel-polyfill' );
-require( './runtime' );
+require( './global' );
 
-require( './global.js' );
+require( './runtime' );
 
 require( '../css/main.scss' );
