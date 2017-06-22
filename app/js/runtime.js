@@ -204,7 +204,7 @@ KeyboardInput.SPACE.release = () => _SPACE = false;
  * TOUCH INPUT AREA
  */
 
-if( isMobile ) {
+if( !isMobile ) {
     const
         leftMovement  = new PIXI.Graphics(),
         rightMovement = new PIXI.Graphics(),
@@ -218,13 +218,13 @@ if( isMobile ) {
 
     function t_move( direction ) {
         if( direction === TOUCH.LEFT )
-            P.Movement.LEFT = _SPACE = true;
+            P.Movement.LEFT  = _SPACE = true;
         else if( direction === TOUCH.RIGHT )
             P.Movement.RIGHT = _SPACE = true;
         else if( direction === TOUCH.EXIT_LEFT )
-            P.Movement.LEFT = false;
+            P.Movement.LEFT  = _SPACE = false;
         else if( direction === TOUCH.EXIT_RIGHT )
-            P.Movement.RIGHT = false;
+            P.Movement.RIGHT = _SPACE = false;
         else
             P.Movement.RIGHT = P.Movement.LEFT = _SPACE = false;
     }
@@ -244,7 +244,11 @@ if( isMobile ) {
     leftMovement
         .on( 'touchstart', () => t_move( TOUCH.LEFT ) )
         .on( 'touchend', () => t_move( TOUCH.EXIT_LEFT ) )
-        .on( 'touchendoutsite', () => t_move( TOUCH.EXIT_LEFT ) );
+        .on( 'touchendoutsite', () => t_move( TOUCH.EXIT_LEFT ) )
+        .on( 'touchleave', () => t_move( TOUCH.EXIT_LEFT ) )
+        .on( 'touchcancel', () => t_move( TOUCH.EXIT_LEFT ) );
+
+    window.leftMovement = leftMovement;
 
     rightMovement.beginFill( 0x000000, 0 );
     rightMovement.lineStyle( 0 );
