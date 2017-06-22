@@ -73,7 +73,7 @@ const
         HEIGHT: 24
     },
     SHOTS   = [],
-    ENEMIES = [];
+    ENEMIES = window.ENEMIES = [];
 
 P.WIDTH_OFFSET = P.WIDTH / 4;
 
@@ -124,14 +124,70 @@ P.Render();
  * We are going to have the shots track the enemies because that is
  * few to many as
  */
-const enemy = window.enemy = new PIXI.Graphics();
-enemy.beginFill( P.fillColor, P.fillOpacity );
-enemy.lineStyle( 1, 0xFF00FF, 1 );
-enemy.drawEllipse( 100, 100, 20, 40 );
-enemy.endFill();
-_.stage.addChild( enemy );
+const _enemy = new PIXI.Graphics();
+_enemy.beginFill( 0xE74C3C, 0.5 );
+_enemy.lineStyle( 1, 0xC0392B, 1 );
+_enemy._width = 20;
+_enemy._height = 40;
+_enemy.drawEllipse( 0, 0, _enemy._width, _enemy._height );
+_enemy.endFill();
 
-ENEMIES.push( enemy );
+function getRandom( min, max ) {
+    return ~~( ( Math.random() * max ) + min );
+}
+
+function getRandomX() {
+    return getRandom( _enemy._width, SCREEN.WIDTH - _enemy._width );
+}
+
+function SpawnEnemy() {
+    this.clone   = _enemy.clone();
+    this.clone.x = getRandomX();
+    this.clone.y = -( _enemy._height ) * 2;
+
+    this.health = 3;
+    this.speed = 5;
+    this.movementType = 'FLAT';
+
+    this._delete = i => {
+        console.log( i );
+        _.stage.removeChild( ENEMIES[ i ] );
+        ENEMIES.remove( i );
+    };
+
+    this._hit = () => {
+        this.health--;
+        if( this.health < 0 )
+            this.clone.destroy();
+    };
+
+    this.clone.lineWidth = this.health;
+}
+
+function spawnHandle() {
+    const a = new SpawnEnemy();
+
+    ENEMIES.push( a );
+    _.stage.addChild( a.clone );
+
+    spawner();
+}
+
+function spawner() {
+    if( STATE.RUNNING ) {
+        setTimeout(
+            spawnHandle,
+            getRandom( 500, 2000 )
+        );
+    }
+}
+
+spawnHandle();
+
+setTimeout(
+    console.log( ENEMIES ),
+    2020
+);
 
 /**
  * PROJECTILE AREA
@@ -157,54 +213,21 @@ function deleteShot( i ) {
     SHOTS.remove( i );
 }
 
-_.ticker.add( delta => {
-    for( let i = 0; i < SHOTS.length; ++i ) {
-        SHOTS[ i ].y -= _shot.speed * delta;
-
-        if( SHOTS[ i ].y < 0 ) {
-            deleteShot( i );
-        }
-    }
-} );
-
 
 
 /**
- * KEYBOARD INPUT AREA
+ * INPUT REGION
  */
-const
-    KeyboardInput = {
-        W: new KeyboardAction( 87 ),
-        A: new KeyboardAction( 65 ),
-        S: new KeyboardAction( 83 ),
-        D: new KeyboardAction( 68 ),
-        SPACE: new KeyboardAction( 32 )
-    };
 
 let _SPACE = false;
 
-KeyboardInput.W.press       = () => P.Movement.UP    = true;
-KeyboardInput.W.release     = () => P.Movement.UP    = false;
-
-KeyboardInput.S.press       = () => P.Movement.DOWN  = true;
-KeyboardInput.S.release     = () => P.Movement.DOWN  = false;
-
-KeyboardInput.D.press       = () => P.Movement.RIGHT = true;
-KeyboardInput.D.release     = () => P.Movement.RIGHT = false;
-
-KeyboardInput.A.press       = () => P.Movement.LEFT  = true;
-KeyboardInput.A.release     = () => P.Movement.LEFT  = false;
-
-KeyboardInput.SPACE.press   = () => _SPACE = true;
-KeyboardInput.SPACE.release = () => _SPACE = false;
-
-
-
-/**
- * TOUCH INPUT AREA
- */
-
 if( isMobile ) {
+    /**
+     * TOUCH INPUT AREA
+     */
+
+    console.log( 'Starting up for TouchInput' );
+
     const
         leftMovement  = new PIXI.Graphics(),
         rightMovement = new PIXI.Graphics(),
@@ -274,12 +297,40 @@ if( isMobile ) {
 
     _.stage.addChild( leftMovement );
     _.stage.addChild( rightMovement );
+
+} else {
+    /**
+     * KEYBOARD INPUT AREA
+     */
+
+    console.log( 'Starting up for KeyboardInput' );
+
+    const
+        KeyboardInput = {
+            W: new KeyboardAction( 87 ),
+            A: new KeyboardAction( 65 ),
+            S: new KeyboardAction( 83 ),
+            D: new KeyboardAction( 68 ),
+            SPACE: new KeyboardAction( 32 )
+        };
+
+    // Not used yet - might not be implemented
+    KeyboardInput.W.press       = () => P.Movement.UP    = true;
+    KeyboardInput.W.release     = () => P.Movement.UP    = false;
+
+    // Not used yet - might not be implemented
+    KeyboardInput.S.press       = () => P.Movement.DOWN  = true;
+    KeyboardInput.S.release     = () => P.Movement.DOWN  = false;
+
+    KeyboardInput.D.press       = () => P.Movement.RIGHT = true;
+    KeyboardInput.D.release     = () => P.Movement.RIGHT = false;
+
+    KeyboardInput.A.press       = () => P.Movement.LEFT  = true;
+    KeyboardInput.A.release     = () => P.Movement.LEFT  = false;
+
+    KeyboardInput.SPACE.press   = () => _SPACE = true;
+    KeyboardInput.SPACE.release = () => _SPACE = false;
 }
-
-
-
-
-
 
 
 
@@ -298,4 +349,22 @@ _.ticker.add( delta => {
     }
 
     P.Render();
+
+    let i;
+
+    for( i = 0; i < SHOTS.length; ++i ) {
+        SHOTS[ i ].y -= SHOTS[ i ].speed * delta;
+
+        if( SHOTS[ i ].y < 0 ) {
+            deleteShot( i );
+        }
+    }
+
+    for( i = 0; i < ENEMIES.length; ++i ) {
+        ENEMIES[ i ].clone.y += ENEMIES[ i ].speed * delta;
+
+        if( ENEMIES[ i ].clone.y >= SCREEN.HEIGHT ) {
+            ENEMIES[ i ]._delete( i );
+        }
+    }
 } );
