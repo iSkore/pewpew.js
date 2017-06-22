@@ -8,33 +8,7 @@
  http://help.adobe.com/en_US/AS2LCR/Flash_10.0/help.html?content=00000520.html
  */
 
-/**
- * On screen score
- */
-const
-    storeStyle     = new PIXI.TextStyle( {
-        fontFamily: 'Arial',
-        fontSize: 32,
-        fill: 'white'
-    } ),
-    scoreText      = new PIXI.Text( '0', storeStyle );
-
-scoreText.x = 10;
-scoreText.y = 10;
-_.stage.addChild( scoreText );
-
-let
-    score  = window.score  = {
-        _score: 0,
-        get points() {
-            return score._score || 0;
-        },
-        set points( v ) {
-            scoreText.text = ''+v;
-            score._score = v;
-        }
-    };
-
+require( './Score' );
 /**
  * CREATE THE PLAYER
  */
@@ -141,35 +115,41 @@ function getRandomX() {
 }
 
 function SpawnEnemy() {
-    this.clone   = _enemy.clone();
-    this.clone.x = getRandomX();
-    this.clone.y = -( _enemy._height ) * 2;
+    const a = _enemy.clone();
+    a.x = getRandomX();
+    a.y = -( _enemy._height ) * 2;
 
-    this.health = 3;
-    this.speed = 5;
-    this.movementType = 'FLAT';
+    a.health = 3;
+    a.speed = 5;
+    a.movementType = 'FLAT';
 
-    this._delete = i => {
-        console.log( i );
-        _.stage.removeChild( ENEMIES[ i ] );
-        ENEMIES.remove( i );
+    a.localDestroy = () => {
+        _.stage.removeChild( a );
     };
 
-    this._hit = () => {
-        this.health--;
-        if( this.health < 0 )
-            this.clone.destroy();
+    a.localHit = () => {
+        a.health--;
+        if( a.health < 0 )
+            a.destroy();
     };
 
-    this.clone.lineWidth = this.health;
+    a.localRender = delta => {
+        a.y += a.speed * delta;
+
+        if( a.y >= SCREEN.HEIGHT ) {
+            a.localDestroy();
+        }
+    }
+
+    a.lineWidth = a.health;
+    a.index = ENEMIES.length;
+
+    ENEMIES.push( a );
+    _.stage.addChild( a );
 }
 
 function spawnHandle() {
-    const a = new SpawnEnemy();
-
-    ENEMIES.push( a );
-    _.stage.addChild( a.clone );
-
+    SpawnEnemy();
     spawner();
 }
 
@@ -360,11 +340,9 @@ _.ticker.add( delta => {
         }
     }
 
-    for( i = 0; i < ENEMIES.length; ++i ) {
-        ENEMIES[ i ].clone.y += ENEMIES[ i ].speed * delta;
-
-        if( ENEMIES[ i ].clone.y >= SCREEN.HEIGHT ) {
-            ENEMIES[ i ]._delete( i );
-        }
+    for( i = 0; i < _.stage.children.length; ++i ) {
+        const localObj = _.stage.children[ i ];
+        //if( localObj instanceof Player )
+        //    localObj.localRender();
     }
 } );

@@ -11,6 +11,8 @@ Array.prototype.remove = function( from, to ) {
 
 const
     { version }    = require( '../../package.json' ),
+    MMath          = require( './client/MMath' ),
+    Vector2D       = require( './client/Vector2D' ),
     PIXI           = require( 'pixi.js' ),
     KeyboardAction = require( './client/KeyboardAction' ),
     view           = document.getElementById( 'board' ),
@@ -30,6 +32,8 @@ const
         height: SCREEN.HEIGHT,
         view
     } ),
+    mobileCheck    = /Android|BlackBerry|iPhone|iPad|iPod|Opera Mini|IEMobile/i,
+    isMobile       = mobileCheck.test( navigator.userAgent ),
     vStyle         = new PIXI.TextStyle( {
         fontFamily: 'Arial',
         fontSize: 10,
@@ -47,15 +51,14 @@ vText.x = SCREEN.WIDTH - ( ( vText._text.length * vText._style._fontSize ) / 2 )
 vText.y = SCREEN.HEIGHT - vText._style._fontSize - padding;
 _.stage.addChild( vText );
 
+
+window.MMath          = MMath;
+window.Vector2D       = Vector2D;
+
 window.PIXI           = PIXI;
 window.KeyboardAction = KeyboardAction;
 window.view           = view;
 window.SCREEN         = SCREEN;
 window.STATE          = STATE;
 window._              = _;
-
-const
-    mobileCheck = /Android|BlackBerry|iPhone|iPad|iPod|Opera Mini|IEMobile/i,
-    isMobile    = mobileCheck.test( navigator.userAgent );
-
 window.isMobile = isMobile;

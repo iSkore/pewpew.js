@@ -5,14 +5,20 @@ class MMath
     constructor( precision )
     {
         if( precision === MMath.LOW_PRECISION ) {
-            this.MRoot     = this.l_root;
-            this.MDistance = this.l_distance;
+            this.MRoot      = this.l_root;
+            this.MDistance  = this.l_distance;
+            this.MMagnitude = this.l_magnitude;
+            this.MSqrMagnitude = this.l_sqrMagnitude;
         } else if( precision === MMath.MID_PRECISION ) {
-            this.MRoot     = this.m_root;
-            this.MDistance = this.m_distance;
+            this.MRoot      = this.m_root;
+            this.MDistance  = this.m_distance;
+            this.MMagnitude = this.m_magnitude;
+            this.MSqrMagnitude = this.m_sqrMagnitude;
         } else {
-            this.MRoot     = this.h_root;
-            this.MDistance = this.h_distance;
+            this.MRoot      = this.h_root;
+            this.MDistance  = this.h_distance;
+            this.MMagnitude = this.h_magnitude;
+            this.MSqrMagnitude = this.h_sqrMagnitude;
         }
     }
 
@@ -52,6 +58,7 @@ class MMath
             } else {
                 m >>= 1;
             }
+
             bit >>= 2;
         }
 
@@ -70,7 +77,7 @@ class MMath
             x = x2 - x1,
             y = y2 - y1;
 
-        return this.m_root( x * x + y * y );
+        return this.m_root( ( x ** 2 ) + ( y ** 2 ) );
     }
 
     l_distance( x1, x2, y1, y2 )
@@ -79,7 +86,22 @@ class MMath
             x = x2 - x1,
             y = y2 - y1;
 
-        return this.l_root( x * x + y * y );
+        return this.l_root( ( x ** 2 ) + ( y ** 2 ) );
+    }
+
+    h_magnitude( x, y )
+    {
+        return this.h_root( ( x ** 2 ) + ( y ** 2 ) );
+    }
+
+    m_magnitude( x, y )
+    {
+        return this.m_root( ( x ** 2 ) + ( y ** 2 ) );
+    }
+
+    l_magnitude( x, y )
+    {
+        return this.l_root( ( x ** 2 ) + ( y ** 2 ) );
     }
 }
 

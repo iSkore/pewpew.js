@@ -1,9 +1,10 @@
 'use strict';
 
+// Might impliment this for
+// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Proxy
+
 const
     MMath = require( './MMath' );
-
-const util = require( 'util' );
 
 class Vector2D extends MMath
 {
@@ -19,12 +20,40 @@ class Vector2D extends MMath
             this.init( args[ 0 ], args[ 1 ] );
         else
             this.error( 'Argument Error - must specify X and Y values' );
+
+        this.getterX = args[ 0 ].getterX || ( () => {} );
+        this.setterX = args[ 0 ].setterX || ( () => {} );
+
+        this.getterY = args[ 0 ].getterY || ( () => {} );
+        this.setterY = args[ 0 ].setterY || ( () => {} );
     }
 
     init( x, y )
     {
-        this.x = x = +x;
-        this.y = y = +y;
+        this._x = x = +x;
+        this._y = y = +y;
+
+        this.x = {
+            get () {
+                this.getterX( this._x );
+                return this._x;
+            },
+            set ( v ) {
+                this.setterX( v );
+                this._x = v;
+            }
+        };
+
+        this.y = {
+            get () {
+                this.getterY( this._y );
+                return this._y;
+            },
+            set ( v ) {
+                this.setterY( v );
+                this._y = v;
+            }
+        };
     }
 
     distance( p )
@@ -35,9 +64,9 @@ class Vector2D extends MMath
         return this.MDistance( this.x, p.x, this.y, p.y );
     }
 
-    error( arg )
+    magnitude()
     {
-        throw `[Vector2D] ${args}`;
+        return this.MMagnitude( this.x, this.y );
     }
 
     getX()
@@ -60,35 +89,33 @@ class Vector2D extends MMath
         this.y = y;
     }
 
-    __noSuchMethod__( ) {
-        console.log( 'ok' );
+    set( x, y )
+    {
+        this.x = x;
+        this.y = y;
+        return this;
+    }
+
+    toString()
+    {
+        return `Vector2D( ${this.x}, ${this.y} )`;
+    }
+
+    error( arg )
+    {
+        throw `[Vector2D] ${args}`;
     }
 }
-
-var handler = {
-    get: function(target, name) {
-        return name in target ?
-            target[name] :
-            37;
-    }
-};
-
-
-Vector2D.constructor.apply( () => {
-    new Proxy( Vector2D, console.log );
-} );
 
 Vector2D.HIGH_PRECISION = MMath.HIGH_PRECISION;
 Vector2D.MID_PRECISION  = MMath.MID_PRECISION;
 Vector2D.LOW_PRECISION  = MMath.LOW_PRECISION;
 
-const
-    p1 = new Vector2D( 10, 10, Vector2D.HIGH_PRECISION ),
-    p2 = new Vector2D( 20, 20 );
+Vector2D.one   = new Vector2D( 1, 1 );
+Vector2D.up    = new Vector2D( 0, 1 );
+Vector2D.down  = new Vector2D( 0, -1 );
+Vector2D.left  = new Vector2D( -1, 0 );
+Vector2D.right = new Vector2D( 1, 0 );
+Vector2D.zero  = new Vector2D( 0, 0 );
 
-// Hmm...
-// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Proxy
-
-console.log( p1 + p1 );
-//
-// console.log( util.inspect( p1 , { depth: null, showHidden: true } ) );
+module.exports = Vector2D;
