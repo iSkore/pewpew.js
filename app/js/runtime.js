@@ -204,7 +204,7 @@ KeyboardInput.SPACE.release = () => _SPACE = false;
  * TOUCH INPUT AREA
  */
 
-if( !isMobile ) {
+if( isMobile ) {
     const
         leftMovement  = new PIXI.Graphics(),
         rightMovement = new PIXI.Graphics(),
