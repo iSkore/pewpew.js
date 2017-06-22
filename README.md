@@ -1,4 +1,4 @@
-# shooterjs
+# pewpewjs
 
 Space ship shooter in HTML, CSS, and JS
 

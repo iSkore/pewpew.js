@@ -6,8 +6,14 @@
 
 import { resolve } from 'path';
 import ExtractTextPlugin from 'extract-text-webpack-plugin';
+import CopyWebpackPlugin from 'copy-webpack-plugin';
 
-const extractSass = new ExtractTextPlugin( './css/main.css' );
+const
+    extractSass    = new ExtractTextPlugin( './css/main.css' ),
+    extractAssests = new CopyWebpackPlugin( [ {
+        from: './assets/',
+        to: '../dist/assets/'
+    } ] );
 
 export default {
     context: resolve( __dirname, '../app' ),
@@ -21,6 +27,10 @@ export default {
     },
     module: {
         rules: [
+            {
+                test: /\.(jpe?g|gif|png|svg|woff|ttf|wav|mp3)$/,
+                include: resolve( __dirname, '../app/assets' )
+            },
             {
                 test: /\.scss$/,
                 include: resolve( __dirname, '../app/css' ),
@@ -38,6 +48,7 @@ export default {
         ]
     },
     plugins: [
-        extractSass
+        extractSass,
+        extractAssests
     ]
 }
