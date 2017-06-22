@@ -8,46 +8,16 @@
  http://help.adobe.com/en_US/AS2LCR/Flash_10.0/help.html?content=00000520.html
  */
 
-// Ladies and gents,
-// I know you're NEVER suppose to do this
-// I don't care untill ES2018 comes out.
-Array.prototype.remove = function( from, to ) {
-    const rest = this.slice( ( to || from ) + 1 || this.length );
-    this.length = from < 0 ? this.length + from : from;
-    return this.push.apply( this, rest );
-};
-
 /**
- * CREATE THE RENDER AREA and globals
+ * On screen score
  */
 const
-    PIXI           = require( 'pixi.js' ),
-    KeyboardAction = require( './client/KeyboardAction' ),
-    view           = document.getElementById( 'board' ),
-    SCREEN = window.SCREEN = {
-        WIDTH: view.offsetWidth,
-        HEIGHT: view.offsetHeight
-    },
-    _ =  window._  = new PIXI.Application( {
-        backgroundColor: 0x222222,
-        antialias: false,
-        transparent: false,
-        resolution: 1,
-        width: SCREEN.WIDTH,
-        height: SCREEN.HEIGHT,
-        view
-    } ),
-    STYLE          = new PIXI.TextStyle( {
+    storeStyle     = new PIXI.TextStyle( {
         fontFamily: 'Arial',
         fontSize: 32,
         fill: 'white'
     } ),
-    scoreText      = new PIXI.Text( '0', STYLE );
-
-_.autoResize = true;
-_.stage.interactive = true;
-
-document.body.appendChild( _.view );
+    scoreText      = new PIXI.Text( '0', storeStyle );
 
 scoreText.x = 10;
 scoreText.y = 10;
@@ -157,7 +127,7 @@ P.Render();
 const enemy = window.enemy = new PIXI.Graphics();
 enemy.beginFill( P.fillColor, P.fillOpacity );
 enemy.lineStyle( 1, 0xFF00FF, 1 );
-enemy.drawEllipse( 100, 100, 20, 40 )
+enemy.drawEllipse( 100, 100, 20, 40 );
 enemy.endFill();
 _.stage.addChild( enemy );
 
@@ -200,32 +170,113 @@ _.ticker.add( delta => {
 
 
 /**
- * INPUT AREA
+ * KEYBOARD INPUT AREA
  */
-const Input = {
-    W: new KeyboardAction( 87 ),
-    A: new KeyboardAction( 65 ),
-    S: new KeyboardAction( 83 ),
-    D: new KeyboardAction( 68 ),
-    SPACE: new KeyboardAction( 32 )
-}
-
-Input.W.press       = () => P.Movement.UP    = true;
-Input.W.release     = () => P.Movement.UP    = false;
-
-Input.S.press       = () => P.Movement.DOWN  = true;
-Input.S.release     = () => P.Movement.DOWN  = false;
-
-Input.D.press       = () => P.Movement.RIGHT = true;
-Input.D.release     = () => P.Movement.RIGHT = false;
-
-Input.A.press       = () => P.Movement.LEFT  = true;
-Input.A.release     = () => P.Movement.LEFT  = false;
+const
+    KeyboardInput = {
+        W: new KeyboardAction( 87 ),
+        A: new KeyboardAction( 65 ),
+        S: new KeyboardAction( 83 ),
+        D: new KeyboardAction( 68 ),
+        SPACE: new KeyboardAction( 32 )
+    };
 
 let _SPACE = false;
-Input.SPACE.press   = () => _SPACE = true;
-Input.SPACE.release = () => _SPACE = false;
 
+KeyboardInput.W.press       = () => P.Movement.UP    = true;
+KeyboardInput.W.release     = () => P.Movement.UP    = false;
+
+KeyboardInput.S.press       = () => P.Movement.DOWN  = true;
+KeyboardInput.S.release     = () => P.Movement.DOWN  = false;
+
+KeyboardInput.D.press       = () => P.Movement.RIGHT = true;
+KeyboardInput.D.release     = () => P.Movement.RIGHT = false;
+
+KeyboardInput.A.press       = () => P.Movement.LEFT  = true;
+KeyboardInput.A.release     = () => P.Movement.LEFT  = false;
+
+KeyboardInput.SPACE.press   = () => _SPACE = true;
+KeyboardInput.SPACE.release = () => _SPACE = false;
+
+
+
+/**
+ * TOUCH INPUT AREA
+ */
+
+if( isMobile ) {
+    const
+        leftMovement  = new PIXI.Graphics(),
+        rightMovement = new PIXI.Graphics(),
+        hWIDTH        = SCREEN.WIDTH / 2,
+        TOUCH         = {
+            LEFT: 1,
+            EXIT_LEFT: 2,
+            RIGHT: 3,
+            EXIT_RIGHT: 4
+        };
+
+    function t_move( direction ) {
+        if( direction === TOUCH.LEFT )
+            P.Movement.LEFT = _SPACE = true;
+        else if( direction === TOUCH.RIGHT )
+            P.Movement.RIGHT = _SPACE = true;
+        else if( direction === TOUCH.EXIT_LEFT )
+            P.Movement.LEFT = false;
+        else if( direction === TOUCH.EXIT_RIGHT )
+            P.Movement.RIGHT = false;
+        else
+            P.Movement.RIGHT = P.Movement.LEFT = _SPACE = false;
+    }
+
+    leftMovement.beginFill( 0x000000, 0 );
+    leftMovement.lineStyle( 0 );
+    leftMovement.moveTo( 0, 0 );
+    leftMovement.lineTo( hWIDTH, 0 );
+    leftMovement.lineTo( hWIDTH, SCREEN.HEIGHT );
+    leftMovement.lineTo( 0, SCREEN.HEIGHT );
+    leftMovement.lineTo( 0, 0 );
+    leftMovement.endFill();
+
+    leftMovement.buttonMode  = true;
+    leftMovement.interactive = true;
+
+    leftMovement
+        .on( 'touchstart', () => t_move( TOUCH.LEFT ) )
+        .on( 'touchend', () => t_move( TOUCH.EXIT_LEFT ) )
+        .on( 'touchendoutsite', () => t_move( TOUCH.EXIT_LEFT ) );
+
+    rightMovement.beginFill( 0x000000, 0 );
+    rightMovement.lineStyle( 0 );
+    rightMovement.moveTo( hWIDTH, 0 );
+    rightMovement.lineTo( SCREEN.WIDTH, 0 );
+    rightMovement.lineTo( SCREEN.WIDTH, SCREEN.HEIGHT );
+    rightMovement.lineTo( hWIDTH, SCREEN.HEIGHT );
+    rightMovement.lineTo( 0, 0 );
+    rightMovement.endFill();
+
+    rightMovement.buttonMode  = true;
+    rightMovement.interactive = true;
+
+    rightMovement
+        .on( 'touchstart', () => t_move( TOUCH.RIGHT ) )
+        .on( 'touchend', () => t_move( TOUCH.EXIT_RIGHT ) )
+        .on( 'touchendoutsite', () => t_move( TOUCH.EXIT_RIGHT ) );
+
+    _.stage.addChild( leftMovement );
+    _.stage.addChild( rightMovement );
+}
+
+
+
+
+
+
+
+
+/**
+ * void UPDATE()
+ */
 _.ticker.add( delta => {
     P.Shooting = _SPACE;
 
