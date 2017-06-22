@@ -10,14 +10,15 @@ Space ship shooter in HTML, CSS, and JS
 Must have:
 - [`Node.JS`](https://nodejs.org/en/)
 - [`git`](https://git-scm.com/)
-- [`gulp`](http://gulpjs.com/): `sudo npm i -g gulp`
-- [`browserify`](http://browserify.org/): `sudo npm i -g browserify`
+- [`webpack v3`](https://webpack.js.org/): `sudo npm i -g webpack`
+- [`http-server`](https://github.com/indexzero/http-server) `sudo npm i -g http-server`
 
 ```
-git clone https://github.com/iSkore/shooterjs.git
-cd shooterjs/
+git clone https://github.com/iSkore/pewpew.js.git
+cd pewpew.js/
 npm i
-gulp
+npm run prod
+http-server
 ```
 
 Server will start on http://localhost:8080/
