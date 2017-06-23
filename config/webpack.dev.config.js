@@ -6,8 +6,15 @@
 
 import webpack from 'webpack';
 import Merge from 'webpack-merge';
+import HtmlWebpackPlugin from 'html-webpack-plugin';
 import CommonConfig from './webpack.base.config';
 import { resolve } from 'path';
+
+const
+    extractHtml    = new HtmlWebpackPlugin( {
+        template: 'index.html',
+        filename: '../dist/index.html'
+    } );
 
 export default Merge( CommonConfig, {
     devtool: 'eval-source-map',
@@ -20,6 +27,9 @@ export default Merge( CommonConfig, {
             }
         ]
     },
+    plugins: [
+        extractHtml
+    ],
     devServer: {
         contentBase: resolve( __dirname, '../dist' )
     }
