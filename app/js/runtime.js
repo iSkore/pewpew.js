@@ -9,87 +9,42 @@
  */
 
 require( './Score' );
-/**
- * CREATE THE PLAYER
- */
+
 const
-    P = window.P = {
-        Graphic: new PIXI.Graphics(),
-        fillColor: 0xFF00BB,
-        fillOpacity: 0.25,
-        lineWidth: 1,
-        lineColor: 0xFF00FF,
-        _CanShoot: true,
-        get CanShoot() {
-            return P._CanShoot;
-        },
-        set CanShoot( v ) {
-            P._CanShoot = v;
-
-            setTimeout(
-                () => P._CanShoot = true,
-                100
-            );
-        },
-        _Shooting: false,
-        get Shooting() {
-            return P._Shooting;
-        },
-        set Shooting( v ) {
-            if( v && P.CanShoot ) {
-                P.CanShoot = false;
-                shoot();
-            }
-
-            P._Shooting = v;
-        },
-        WIDTH: 16,
-        HEIGHT: 24
-    },
-    SHOTS   = [],
+    Player = require( './Player' ),
+    P       = new Player(),
+    SHOTS   = window.SHOTS = [],
     ENEMIES = window.ENEMIES = [];
 
-P.WIDTH_OFFSET = P.WIDTH / 4;
-
-P.Movement = {
-    _isMoving: false,
-    get isMoving() {
-        if( P.Movement.UP || P.Movement.DOWN || P.Movement.RIGHT || P.Movement.LEFT )
-            P.Movement._isMoving = true;
-        return P.Movement._isMoving;
-    },
-    set isMoving( v ) {
-        if( !v )
-            P.Movement.UP = P.Movement.DOWN = P.Movement.RIGHT = P.Movement.LEFT = false;
-        P.Movement._isMoving = v;
-    },
-    UP: false,
-    DOWN: false,
-    RIGHT: false,
-    LEFT: false,
-    Speed: 10
-};
-
-P.Transform = {
-    X: ( SCREEN.WIDTH * 0.5 ) - ( P.WIDTH * 0.5 ),
-    Y: ( SCREEN.HEIGHT * 0.95 ) - P.HEIGHT
-};
-
-P.Render = () => {
-    SCREEN.WIDTH  = view.offsetWidth;
-    SCREEN.HEIGHT = view.offsetHeight;
-
-    P.Graphic.clear();
-    P.Graphic.beginFill( P.fillColor, P.fillOpacity );
-    P.Graphic.lineStyle( 1, 0xFF00FF, 1 );
-    P.Graphic.moveTo( P.Transform.X, P.Transform.Y );
-    P.Graphic.lineTo( P.Transform.X + ( P.WIDTH * 0.5 ), P.Transform.Y - P.HEIGHT );
-    P.Graphic.lineTo( P.Transform.X + P.WIDTH, P.Transform.Y );
-    P.Graphic.lineTo( P.Transform.X, P.Transform.Y );
-};
+window.P    = P;
 
 _.stage.addChild( P.Graphic );
 P.Render();
+
+/**
+ * PROJECTILE AREA
+ */
+const
+    _shot = new PIXI.Graphics();
+
+_shot.beginFill( P.fillColor, P.fillOpacity );
+_shot.lineStyle( 1, 0xFF00FF, 1 );
+_shot.drawEllipse( 0, 0, 2, 4 )
+_shot.endFill();
+_shot.speed = 10;
+
+function shoot() {
+    const a = _shot.clone();
+    a.x = P.Transform.X + ( P.WIDTH / 2 );
+    a.y = P.Transform.Y - P.HEIGHT;
+
+    a._delete = () => _.stage.removeChild( a );
+
+    _.stage.addChild( a );
+}
+
+P.subscribeEvent( 'shoot', shoot );
+
 
 
 
@@ -168,32 +123,6 @@ setTimeout(
     console.log( ENEMIES ),
     2020
 );
-
-/**
- * PROJECTILE AREA
- */
-const _shot = new PIXI.Graphics();
-_shot.beginFill( P.fillColor, P.fillOpacity );
-_shot.lineStyle( 1, 0xFF00FF, 1 );
-_shot.drawEllipse( 0, 0, 2, 4 )
-_shot.endFill();
-_shot.speed = 10;
-
-function shoot() {
-    P.CanShoot = false;
-    const a = _shot.clone();
-    a.x = P.Transform.X + ( P.WIDTH / 2 );
-    a.y = P.Transform.Y - P.HEIGHT;
-    SHOTS.push( a );
-    _.stage.addChild( a );
-}
-
-function deleteShot( i ) {
-    _.stage.removeChild( SHOTS[ i ] );
-    SHOTS.remove( i );
-}
-
-
 
 /**
  * INPUT REGION

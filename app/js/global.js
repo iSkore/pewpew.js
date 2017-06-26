@@ -61,4 +61,4 @@ window.view           = view;
 window.SCREEN         = SCREEN;
 window.STATE          = STATE;
 window._              = _;
-window.isMobile = isMobile;
+window.isMobile       = isMobile;
